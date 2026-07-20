@@ -1,0 +1,31 @@
+.sync-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sync-button {
+  background: var(--accent-blue);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sync-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.sync-result {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.sync-result-error {
+  color: var(--status-critical);
+}

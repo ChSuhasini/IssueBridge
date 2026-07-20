@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3BA801BC-F8DC-41D3-94D6-3DF69DD8D06D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IssueBridge.Api", "src\IssueBridge.Api\IssueBridge.Api.csproj", "{A5F376EF-1248-4FC6-A794-1D25B39A7D2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IssueBridge.Tests", "src\IssueBridge.Tests\IssueBridge.Tests.csproj", "{43AF3BE8-1A70-4ED7-A985-7DBA080D6B8E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A5F376EF-1248-4FC6-A794-1D25B39A7D2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5F376EF-1248-4FC6-A794-1D25B39A7D2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5F376EF-1248-4FC6-A794-1D25B39A7D2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5F376EF-1248-4FC6-A794-1D25B39A7D2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43AF3BE8-1A70-4ED7-A985-7DBA080D6B8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43AF3BE8-1A70-4ED7-A985-7DBA080D6B8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43AF3BE8-1A70-4ED7-A985-7DBA080D6B8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43AF3BE8-1A70-4ED7-A985-7DBA080D6B8E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A5F376EF-1248-4FC6-A794-1D25B39A7D2E} = {3BA801BC-F8DC-41D3-94D6-3DF69DD8D06D}
+		{43AF3BE8-1A70-4ED7-A985-7DBA080D6B8E} = {3BA801BC-F8DC-41D3-94D6-3DF69DD8D06D}
+	EndGlobalSection
+EndGlobal

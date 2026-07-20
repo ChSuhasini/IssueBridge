@@ -1,0 +1,31 @@
+.app-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.app-header h1 {
+  font-size: 22px;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.app-error {
+  background: color-mix(in srgb, var(--status-critical) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--status-critical) 40%, transparent);
+  color: var(--status-critical);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+}

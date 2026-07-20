@@ -1,0 +1,112 @@
+.issue-table-wrap {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.issue-filters {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--gridline);
+  flex-wrap: wrap;
+}
+
+.issue-filters select,
+.issue-filters input {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+}
+
+.issue-table-scroll {
+  overflow-x: auto;
+}
+
+.issue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.issue-table th {
+  text-align: left;
+  padding: 10px 14px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--gridline);
+  white-space: nowrap;
+}
+
+.issue-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--gridline);
+  color: var(--text-primary);
+}
+
+.issue-row {
+  cursor: pointer;
+}
+
+.issue-row:hover {
+  background: color-mix(in srgb, var(--accent-blue) 6%, transparent);
+}
+
+.issue-title-cell {
+  max-width: 360px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.issue-empty-cell {
+  color: var(--text-muted);
+}
+
+.issue-table-empty {
+  text-align: center;
+  padding: 28px;
+  color: var(--text-muted);
+}
+
+.github-state {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.github-state-open {
+  border-color: color-mix(in srgb, var(--status-good) 40%, transparent);
+  color: var(--status-good);
+}
+
+.github-state-closed {
+  color: var(--text-muted);
+}
+
+.priority-badge {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.priority-2 {
+  color: var(--status-critical);
+}
+
+.priority-1 {
+  color: var(--status-warning);
+}
+
+.priority-0 {
+  color: var(--text-muted);
+}

@@ -1,0 +1,21 @@
+# .NET
+bin/
+obj/
+*.user
+
+# SQLite database (local state, not source)
+*.db
+*.db-shm
+*.db-wal
+
+# User secrets never live in the repo anyway (stored outside the project),
+# but keep this as a guardrail in case appsettings gets a local override file.
+appsettings.Local.json
+
+# Node / React
+client/node_modules/
+client/dist/
+
+# Editor
+.vs/
+.vscode/

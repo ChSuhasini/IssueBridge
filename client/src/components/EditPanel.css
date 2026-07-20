@@ -1,0 +1,124 @@
+.edit-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 20;
+}
+
+.edit-panel {
+  width: min(420px, 100%);
+  height: 100%;
+  background: var(--surface-1);
+  border-left: 1px solid var(--border);
+  padding: 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.edit-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.edit-panel-number {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.edit-panel-title {
+  font-size: 18px;
+  margin: 4px 0 0;
+  color: var(--text-primary);
+}
+
+.edit-panel-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.edit-panel-github-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+.edit-panel-body {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.edit-panel-field {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-panel-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.edit-panel-field input,
+.edit-panel-field select,
+.edit-panel-field textarea {
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  resize: vertical;
+}
+
+.edit-panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.edit-panel-cancel,
+.edit-panel-save {
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-panel-cancel {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.edit-panel-save {
+  background: var(--accent-blue);
+  border: none;
+  color: #ffffff;
+}
+
+.edit-panel-cancel:disabled,
+.edit-panel-save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
