@@ -142,6 +142,74 @@ Failed fast (~180ms, DNS resolution failure), zero rows written, same clean stru
 
 In both failure cases the sync fetches **all** pages into memory first and only writes to the database in a single transaction afterward — so a failure at any point during the GitHub fetch (even mid-pagination on page 2, 3, ...) can never leave a half-synced database. This is exercised directly by the `GitHubFailureMidPagination_LeavesNoPartialWrites` test.
 
+## Operations Assistant
+
+IssueBridge includes a stateless, LLM-powered Operations Assistant that answers natural-language questions about locally synchronised GitHub issue data.
+
+The assistant does not receive direct database access and cannot generate or execute SQL. Instead, the model chooses from a fixed set of backend tools:
+
+- `get_open_issues`
+- `get_high_priority_issues`
+- `get_dashboard_summary`
+- `get_issue_details`
+- `get_issues_by_assignee`
+
+Each model-generated tool call is passed through a central executor that validates the tool name, validates its arguments, and enforces that the tool is read-only before execution.
+
+The agent loop is capped at three iterations to prevent unbounded tool execution. Model API failures, malformed responses, unknown tools, invalid arguments, and unexpected tool failures are returned as controlled results rather than crashing the request.
+
+### Endpoint
+
+`POST /api/assistant/ask`
+
+Example request:
+
+```json
+{
+  "question": "Which high-priority issues are currently unassigned?"
+}
+```
+
+Example response:
+
+```json
+{
+  "answer": "Two high-priority issues are currently unassigned.",
+  "toolsCalled": ["get_high_priority_issues"],
+  "status": "success",
+  "durationMs": 842
+}
+```
+
+### Telemetry
+
+One `AssistantQueryLog` row is recorded for each request, including:
+
+- question
+- tool names called
+- final status
+- duration
+- error category
+- creation time
+
+Raw tool results, issue bodies, local notes, prompts, and API secrets are not stored in telemetry.
+
+### Testing
+
+The assistant layer is covered by automated tests for:
+
+- direct text responses
+- tool selection and execution
+- tool-result round trips
+- unknown tools
+- invalid arguments
+- model and API failures
+- malformed model responses
+- iteration limits
+- telemetry creation
+
+The complete project test suite currently contains 31 passing tests.
+
 ## Next improvement steps
 
 Documenting what's deliberately *not* built, and why:
