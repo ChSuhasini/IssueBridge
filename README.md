@@ -18,12 +18,16 @@ Sync code only ever touches `Issues`. The local-edit endpoint only ever touches 
 ```
 React (Vite)  →  ASP.NET Core Web API  →  SQLite
 localhost:5173     localhost:5080          issuebridge.db
+                           │
+                           └──→  Anthropic API
+                                 (Operations Assistant tool-calling loop only)
 ```
 
 - **Backend**: ASP.NET Core Web API (.NET 8), EF Core + SQLite
 - **Frontend**: React + TypeScript (Vite)
 - **Sync**: a typed `HttpClient` calls the GitHub REST API directly (no SDK/Octokit) — pagination, auth, and error handling are hand-rolled deliberately, since that's the actual skill being demonstrated
-- **Tests**: xUnit, using a real SQLite `:memory:` connection (not the EF Core InMemory provider) so transaction behavior matches production, and a stubbed `HttpMessageHandler` so no test ever calls the real GitHub API
+- **Operations Assistant**: a bounded (max 3 iterations) tool-calling loop against the Anthropic Messages API — the model never gets direct database access, only a fixed set of read-only tools executed through a central validator (see [Operations Assistant](#operations-assistant) below)
+- **Tests**: xUnit, using a real SQLite `:memory:` connection (not the EF Core InMemory provider) so transaction behavior matches production, and a stubbed `HttpMessageHandler` so no test ever calls the real GitHub or Anthropic APIs
 
 ## Project layout
 
@@ -32,10 +36,11 @@ IssueBridge/
   IssueBridge.sln
   src/
     IssueBridge.Api/      ASP.NET Core Web API
-      Models/              Issue, LocalTaskInfo, LocalStatus, Priority
+      Models/              Issue, LocalTaskInfo, LocalStatus, Priority, AssistantQueryLog
       Data/                IssueBridgeDbContext
       GitHub/              GitHubIssuesClient, SyncService, DTOs
-      Controllers/         SyncController, IssuesController, DashboardController
+      Assistant/           AssistantAgent, AssistantToolExecutor, the five read-only tools, Model/ (Anthropic client)
+      Controllers/         SyncController, IssuesController, DashboardController, AssistantController
       Dtos/
     IssueBridge.Tests/     xUnit tests
   client/                  React app (Vite + TS)
@@ -94,7 +99,7 @@ App: http://localhost:5173 (dev server proxies `/api` to `localhost:5080`)
 
 ## Testing
 
-Four xUnit tests target the actual risk in a sync system — not coverage for its own sake:
+Four of these xUnit tests target the actual risk in a sync system specifically — not coverage for its own sake:
 
 | Test | What it proves |
 |---|---|
@@ -103,11 +108,13 @@ Four xUnit tests target the actual risk in a sync system — not coverage for it
 | `UpstreamIssueChange_UpdatesGitHubFieldsButPreservesLocalTaskInfo` | The two-table separation actually holds under a real upstream change |
 | `GitHubFailureMidPagination_LeavesNoPartialWrites` | Failure handling — a fetch failure aborts *before* any DB write, verified via transaction rollback |
 
+These four live in the same suite as everything else in the project, including the Operations Assistant tests covered in [Testing](#testing-1) below — `dotnet test` runs all of them together:
+
 ```
 dotnet test
 ```
 ```
-Passed!  - Failed: 0, Passed: 4, Skipped: 0, Total: 4, Duration: ~1s
+Passed!  - Failed: 0, Passed: 31, Skipped: 0, Total: 31, Duration: ~2s
 ```
 
 ## Real test results (against a live 8-issue GitHub repo)
