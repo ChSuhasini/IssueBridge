@@ -11,6 +11,7 @@ public class IssueBridgeDbContext : DbContext
 
     public DbSet<Issue> Issues => Set<Issue>();
     public DbSet<LocalTaskInfo> LocalTaskInfos => Set<LocalTaskInfo>();
+    public DbSet<AssistantQueryLog> AssistantQueryLogs => Set<AssistantQueryLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

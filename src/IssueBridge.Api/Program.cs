@@ -1,4 +1,6 @@
 using System.Net.Http.Headers;
+using IssueBridge.Api.Assistant;
+using IssueBridge.Api.Assistant.Model;
 using IssueBridge.Api.Assistant.Tools;
 using IssueBridge.Api.Data;
 using IssueBridge.Api.GitHub;
@@ -43,6 +45,19 @@ builder.Services.AddScoped<IAssistantTool, GetIssueDetailsTool>();
 builder.Services.AddScoped<IAssistantTool, GetDashboardSummaryTool>();
 builder.Services.AddScoped<IAssistantTool, GetIssuesByAssigneeTool>();
 builder.Services.AddScoped<AssistantToolExecutor>();
+
+builder.Services.Configure<AnthropicOptions>(builder.Configuration.GetSection(AnthropicOptions.SectionName));
+
+builder.Services.AddHttpClient<IAssistantModelClient, AnthropicModelClient>((serviceProvider, client) =>
+{
+    var options = serviceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<AnthropicOptions>>().Value;
+    client.BaseAddress = new Uri(options.ApiBaseUrl);
+    client.DefaultRequestHeaders.Add("x-api-key", options.ApiKey);
+    client.DefaultRequestHeaders.Add("anthropic-version", "2023-06-01");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+
+builder.Services.AddScoped<AssistantAgent>();
 
 // Single-user demo project with no auth yet, so any origin can call the API —
 // revisit this once real authentication exists.
