@@ -97,6 +97,48 @@ Using EF Core's SQLite in-memory provider (real SQLite semantics, isolated per t
 - README documents: architecture (two-table principle), how to run locally, actual numbers from a real test run (issue count synced, sync duration, what happened when the token was invalidated or network was cut mid-sync), and the "Next Improvement Steps" section (background sync, auth, rate-limit backoff, deleted-issue handling, webhooks).
 - Revisit deployment target (Azure App Service vs Render/Railway) once the app is proven working locally.
 
+## Phase 7 — Operations Assistant (LLM tool-use agent)
+
+Extends IssueBridge rather than being a separate project: an LLM-backed, **read-only** endpoint that answers questions about the current issue data by choosing from a fixed set of tools, not by writing raw SQL or freeform DB access. The guardrail is real — the model can query and explain, but has no tool capable of mutating `Issue` or `LocalTaskInfo`.
+
+### 0. Setup
+- Create an Anthropic API key (console.anthropic.com), store via `dotnet user-secrets set "Anthropic:ApiKey" "..."` — same never-committed pattern as the GitHub PAT.
+
+### 1. Tools (backed by existing data, no new write paths)
+- `get_open_issues` — issues where GitHub `State == "open"`
+- `get_high_priority_issues` — `LocalTaskInfo.Priority == High`
+- `get_issue_details(issueNumber)` — single issue, `Issue` + `LocalTaskInfo` combined
+- `get_dashboard_summary` — same aggregate the dashboard endpoint already computes
+- `get_issues_by_assignee(assignedTo)` — filter by `LocalTaskInfo.AssignedTo`
+
+Each tool is a plain C# method against the existing DbContext — no new query capability is introduced beyond what `IssuesController`/`DashboardController` already expose; the tools just make it callable by the model.
+
+### 2. Anthropic integration (`Assistant/` folder, same pattern as `GitHub/`)
+- `AnthropicOptions` (ApiKey, Model, ApiBaseUrl) via `IOptions<T>`, same as `GitHubOptions`.
+- `IAssistantClient` / `AssistantClient`: typed `HttpClient` calling the Anthropic Messages API with the tool definitions attached.
+- Agent loop: send question → if `stop_reason == "tool_use"`, execute the named tool locally, send the result back as a `tool_result` block → repeat, capped at a small fixed number of iterations (e.g. 4) so a misbehaving loop can't run away → once `stop_reason == "end_turn"`, return the model's text as the final answer.
+
+### 3. Telemetry (`AssistantQueryLog` table — new, independent of `Issue`/`LocalTaskInfo`)
+Every ask is logged: `Question`, `ToolCallsJson` (tool name + arguments + result for each call made), `FinalResponse`, `DurationMs`, `Failed`, `ErrorMessage`, `CreatedAt`. This is the concrete artifact for "tool use, guardrails, telemetry, failure analysis."
+
+### 4. Endpoints
+- `POST /api/assistant/ask` — `{ question }` → `{ answer, toolCalls: [...], durationMs, failed }`
+- `GET /api/assistant/logs` — recent queries, for a simple telemetry view
+
+### 5. Tests (xUnit, same conventions as Phase 4)
+- Tool-executor tests: each tool method returns the correct filtered rows against the real SQLite in-memory DB (no LLM involved — pure data logic).
+- `AssistantClient` tests: stubbed `HttpMessageHandler` returns a canned Anthropic response sequence (`tool_use` → `end_turn`); verify the correct tool ran, the loop terminated, and the log row was written correctly.
+- Failure case: stub returns a 500/error from the Anthropic API → verify a clean failure response, `Failed=true` logged, no unbounded retry.
+
+### 6. Frontend
+- `AssistantPanel` component: question input, Ask button, answer display, and — for transparency into the guardrail — which tool(s) were called and how long it took.
+- Small "Recent Queries" list backed by `GET /api/assistant/logs`.
+
+### 7. README
+New section documenting: the tool list, the read-only guardrail and why it matters, what telemetry is captured, and real example Q&A pairs with real measured numbers (once tested against live data) — same "actual numbers, not estimates" standard as the sync section.
+
+**Checkpoint:** Ask a handful of the example questions from the original spec against real synced data (e.g. "Which high-priority issues are currently unassigned?"), confirm the tool chosen matches the question, the answer is correct, and the log row captures the full trace.
+
 ## Verification approach throughout
 
-Each phase ends with a manual checkpoint before moving to the next — no phase starts until the previous one is confirmed working. Phase 4's automated tests are the one place we lean on `dotnet test` rather than manual clicking.
+Each phase ends with a manual checkpoint before moving to the next — no phase starts until the previous one is confirmed working. Phases 4 and 7's automated tests are the places we lean on `dotnet test` rather than manual clicking.

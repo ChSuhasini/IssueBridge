@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using IssueBridge.Api.Assistant.Tools;
 using IssueBridge.Api.Data;
 using IssueBridge.Api.GitHub;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,16 @@ builder.Services.AddHttpClient<IGitHubIssuesClient, GitHubIssuesClient>((service
 });
 
 builder.Services.AddScoped<ISyncService, SyncService>();
+
+// Operations Assistant: read-only tool-executor layer. No Anthropic client or
+// controller wired up yet — this just makes the five tools resolvable via DI
+// so the agent loop (added next) has a registry to call into.
+builder.Services.AddScoped<IAssistantTool, GetOpenIssuesTool>();
+builder.Services.AddScoped<IAssistantTool, GetHighPriorityIssuesTool>();
+builder.Services.AddScoped<IAssistantTool, GetIssueDetailsTool>();
+builder.Services.AddScoped<IAssistantTool, GetDashboardSummaryTool>();
+builder.Services.AddScoped<IAssistantTool, GetIssuesByAssigneeTool>();
+builder.Services.AddScoped<AssistantToolExecutor>();
 
 // Single-user demo project with no auth yet, so any origin can call the API —
 // revisit this once real authentication exists.
